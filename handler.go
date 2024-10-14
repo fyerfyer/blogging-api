@@ -188,14 +188,29 @@ func (m *PostModel) DeletePost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(w, "Invalid update index", http.StatusBadRequest)
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
 
 	stmt := `DELETE FROM posts WHERE id = ?`
-	_, err = m.DB.Exec(stmt, id)
+	result, err := m.DB.Exec(stmt, id)
 	if err != nil {
 		http.Error(w, "Database connection error", http.StatusInternalServerError)
 		return
 	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		http.Error(w, "Failed to retrieve affected rows", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "Post deleted successfully"}`))
 }
