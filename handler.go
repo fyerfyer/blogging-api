@@ -143,8 +143,20 @@ func (m *PostModel) GetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *PostModel) GetAllPosts(w http.ResponseWriter, r *http.Request) {
-	stmt := `SELECT id, title, content, category, tags, created_at, updated_at FROM posts`
-	rows, err := m.DB.Query(stmt)
+	// check if there are any query parameters
+	term := r.URL.Query().Get("term")
+	var rows *sql.Rows
+	var err error
+	if term != "" {
+		stmt := `SELECT id, title, content, category, tags, created_at, updated_at FROM posts 
+		WHERE title LIKE ? OR content LIKE ? OR category LIKE ?`
+		searchTerm := "%" + term + "%"
+		rows, err = m.DB.Query(stmt, searchTerm, searchTerm, searchTerm)
+	} else {
+		stmt := `SELECT id, title, content, category, tags, created_at, updated_at FROM posts`
+		rows, err = m.DB.Query(stmt)
+	}
+
 	if err != nil {
 		http.Error(w, "Database query error", http.StatusInternalServerError)
 		return
