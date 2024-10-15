@@ -1,7 +1,4 @@
-* Project page URI: http://localhost:4000
-
-> 由于该项目可通过命令行读取用户自定义的地址，因此实际的URI由用户输入决定：
-> Project page URI: http://localhost:YourAddr
+> Project page URI: https://roadmap.sh/projects/blogging-platform-api
 
 ### 1.使用方法
 
